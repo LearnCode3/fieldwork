@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Catalyst</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        /* Custom animations */
+        .slide-in {
+            transform: translateX(0);
+            transition: transform 0.3s ease-in-out;
+        }
+        .slide-out {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Hide scrollbar for sidebar */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen bg-gray-50">
+        <!-- Mobile menu overlay -->
+        <div id="mobile-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-20 lg:hidden hidden"></div>
+
+        <!-- Sidebar -->
+        <div id="sidebar" class="slide-out fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col lg:translate-x-0 lg:static lg:inset-0">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                            <span class="text-white text-sm font-semibold">C</span>
+                        </div>
+                        <span class="ml-3 text-lg font-semibold text-gray-900">Catalyst</span>
+                    </div>
+                    <button id="close-sidebar" class="lg:hidden p-1 rounded-md text-gray-400 hover:text-gray-500">
+                        <i data-lucide="x" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-6 overflow-y-auto sidebar-scroll">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="#" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-900">
+                            <i data-lucide="home" class="mr-3 h-5 w-5"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                            <i data-lucide="calendar" class="mr-3 h-5 w-5"></i>
+                            Events
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                            <i data-lucide="package" class="mr-3 h-5 w-5"></i>
+                            Orders
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                            <i data-lucide="settings" class="mr-3 h-5 w-5"></i>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="mt-8">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                        Upcoming Events
+                    </h3>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="#" class="block px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors">
+                                Beer Hug: Live in Concert
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors">
+                                Six Fingers — DJ Set
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors">
+                                We All Look The Same
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="block px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors">
+                                Viking People
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-6 border-t border-gray-200 relative">
+                <div id="user-profile" class="flex items-center cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2">
+                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                        <span class="text-sm font-medium text-gray-700">E</span>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium text-gray-900">Erica</p>
+                        <p class="text-xs text-gray-500">erica@example.com</p>
+                    </div>
+                    <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400"></i>
+                </div>
+
+                <!-- User Menu Dropdown -->
+                <div id="user-menu" class="absolute bottom-full left-6 right-6 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1 hidden">
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <i data-lucide="user" class="mr-3 h-4 w-4"></i>
+                        My account
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <i data-lucide="shield" class="mr-3 h-4 w-4"></i>
+                        Privacy Policy
+                    </a>
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <i data-lucide="message-square" class="mr-3 h-4 w-4"></i>
+                        Share Feedback
+                    </a>
+                    <hr class="my-1 border-gray-200">
+                    <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <i data-lucide="log-out" class="mr-3 h-4 w-4"></i>
+                        Sign out
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200 px-4 lg:px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 mr-4">
+                            <i data-lucide="menu" class="h-6 w-6"></i>
+                        </button>
+                        <h1 class="text-xl lg:text-2xl font-semibold text-gray-900">Good afternoon, Erica</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <select class="border border-gray-300 rounded-md px-3 py-1 text-sm bg-white">
+                            <option>Last week</option>
+                            <option>Last month</option>
+                            <option>Last year</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+                <!-- Overview Section -->
+                <div class="mb-8">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Overview</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">Total revenue</h3>
+                            <p class="text-3xl font-semibold text-gray-900">$2.6M</p>
+                            <p class="text-sm text-green-600 mt-2">+4.5% from last week</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">Average order value</h3>
+                            <p class="text-3xl font-semibold text-gray-900">$455</p>
+                            <p class="text-sm text-red-600 mt-2">-0.3% from last week</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">Tickets sold</h3>
+                            <p class="text-3xl font-semibold text-gray-900">5,888</p>
+                            <p class="text-sm text-green-600 mt-2">+4.9% from last week</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">Pageviews</h3>
+                            <p class="text-3xl font-semibold text-gray-900">823,067</p>
+                            <p class="text-sm text-green-600 mt-2">+21.2% from last week</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Recent orders</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Order number
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Purchase date
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Customer
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Event
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Amount
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3000</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">May 9, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Leslie Alexander</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">Beer Hug: Live in Concert</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$80.00</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3001</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">May 8, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Michael Foster</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">Six Fingers — DJ Set</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$299.00</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3002</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 28, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Dries Vincent</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">We All Look The Same</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$150.00</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3003</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 23, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Lindsay Walton</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">Beer Hug: Live in Concert</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$80.00</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3004</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 18, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Courtney Henry</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">Viking People</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$114.99</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3005</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 14, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Tom Cook</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">Six Fingers — DJ Set</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$299.00</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3006</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 10, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Whitney Francis</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">We All Look The Same</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$150.00</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3007</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 6, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Leonard Krasner</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">Beer Hug: Live in Concert</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$80.00</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3008</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Apr 3, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Floyd Miles</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">Beer Hug: Live in Concert</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$80.00</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3009</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Mar 29, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Emily Selman</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span class="text-sm text-gray-900">Viking People</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">US$114.99</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeSidebarBtn = document.getElementById('close-sidebar');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        function openMobileMenu() {
+            sidebar.classList.remove('slide-out');
+            sidebar.classList.add('slide-in');
+            mobileOverlay.classList.remove('hidden');
+        }
+
+        function closeMobileMenu() {
+            sidebar.classList.remove('slide-in');
+            sidebar.classList.add('slide-out');
+            mobileOverlay.classList.add('hidden');
+        }
+
+        mobileMenuBtn.addEventListener('click', openMobileMenu);
+        closeSidebarBtn.addEventListener('click', closeMobileMenu);
+        mobileOverlay.addEventListener('click', closeMobileMenu);
+
+        // User profile dropdown functionality
+        const userProfile = document.getElementById('user-profile');
+        const userMenu = document.getElementById('user-menu');
+        let isUserMenuOpen = false;
+
+        userProfile.addEventListener('click', function(e) {
+            e.stopPropagation();
+            isUserMenuOpen = !isUserMenuOpen;
+            if (isUserMenuOpen) {
+                userMenu.classList.remove('hidden');
+            } else {
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userProfile.contains(e.target) && !userMenu.contains(e.target)) {
+                userMenu.classList.add('hidden');
+                isUserMenuOpen = false;
+            }
+        });
+
+        // Close mobile menu on window resize (for desktop)
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) { // lg breakpoint
+                closeMobileMenu();
+            }
+        });
+
+        // Smooth animations on page load
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            document.body.style.animation = 'fadeIn 0.5s ease-in-out forwards';
+
+            // Add CSS for fade in animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Add hover effects for table rows
+        const tableRows = document.querySelectorAll('tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.classList.add('bg-gray-50');
+            });
+            row.addEventListener('mouseleave', function() {
+                this.classList.remove('bg-gray-50');
+            });
+        });
+
+        // Add click effects for navigation items
+        const navLinks = document.querySelectorAll('nav a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                // Remove active class from all links
+                navLinks.forEach(l => {
+                    l.classList.remove('bg-gray-100', 'text-gray-900');
+                    l.classList.add('text-gray-600', 'hover:bg-gray-50', 'hover:text-gray-900');
+                });
+
+                // Add active class to clicked link
+                this.classList.add('bg-gray-100', 'text-gray-900');
+                this.classList.remove('text-gray-600', 'hover:bg-gray-50', 'hover:text-gray-900');
+            });
+        });
+    </script>
+</body>
+</html>

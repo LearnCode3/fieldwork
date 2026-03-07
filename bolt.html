@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaCare - Pharmacy Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .modal-backdrop {
+            backdrop-filter: blur(4px);
+        }
+
+        .tab-active {
+            border-bottom: 2px solid #3b82f6;
+            color: #3b82f6;
+        }
+
+        .notification-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="w-64 bg-white border-r border-gray-200 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out fixed lg:relative z-50 h-full overflow-y-auto">
+            <!-- Logo -->
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-pills text-white text-sm"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">PharmaCare</span>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex-1 px-3 py-4 space-y-1">
+                <!-- Home -->
+                <div class="nav-item">
+                    <a href="#" onclick="showPage('home')" class="nav-link flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-home w-5 h-5 mr-3"></i>
+                        Dashboard
+                    </a>
+                </div>
+
+                <!-- Products -->
+                <div class="nav-item">
+                    <div class="nav-parent">
+                        <button onclick="toggleSubmenu('products')" class="nav-link w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <div class="flex items-center">
+                                <i class="fas fa-capsules w-5 h-5 mr-3"></i>
+                                Products
+                            </div>
+                            <i class="fas fa-chevron-down transform transition-transform duration-200" id="products-arrow"></i>
+                        </button>
+                        <div id="products-submenu" class="submenu hidden ml-6 mt-1 space-y-1">
+                            <a href="#" onclick="showPage('product-list')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Medicine List</a>
+                            <a href="#" onclick="showPage('categories')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Categories</a>
+                            <a href="#" onclick="showPage('stock')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Stock Management</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales -->
+                <div class="nav-item">
+                    <div class="nav-parent">
+                        <button onclick="toggleSubmenu('sales')" class="nav-link w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <div class="flex items-center">
+                                <i class="fas fa-shopping-cart w-5 h-5 mr-3"></i>
+                                Sales
+                            </div>
+                            <i class="fas fa-chevron-down transform transition-transform duration-200" id="sales-arrow"></i>
+                        </button>
+                        <div id="sales-submenu" class="submenu hidden ml-6 mt-1 space-y-1">
+                            <a href="#" onclick="showPage('new-sale')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">New Sale</a>
+                            <a href="#" onclick="showPage('sales-history')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Sales History</a>
+                            <a href="#" onclick="showPage('invoices')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Invoices & Receipts</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Purchases -->
+                <div class="nav-item">
+                    <div class="nav-parent">
+                        <button onclick="toggleSubmenu('purchases')" class="nav-link w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <div class="flex items-center">
+                                <i class="fas fa-truck w-5 h-5 mr-3"></i>
+                                Purchases
+                            </div>
+                            <i class="fas fa-chevron-down transform transition-transform duration-200" id="purchases-arrow"></i>
+                        </button>
+                        <div id="purchases-submenu" class="submenu hidden ml-6 mt-1 space-y-1">
+                            <a href="#" onclick="showPage('purchase-orders')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Purchase Orders</a>
+                            <a href="#" onclick="showPage('suppliers')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Suppliers List</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customers -->
+                <div class="nav-item">
+                    <a href="#" onclick="showPage('customers')" class="nav-link flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-users w-5 h-5 mr-3"></i>
+                        Customers
+                    </a>
+                </div>
+
+                <!-- Expenses -->
+                <div class="nav-item">
+                    <div class="nav-parent">
+                        <button onclick="toggleSubmenu('expenses')" class="nav-link w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <div class="flex items-center">
+                                <i class="fas fa-receipt w-5 h-5 mr-3"></i>
+                                Expenses
+                            </div>
+                            <i class="fas fa-chevron-down transform transition-transform duration-200" id="expenses-arrow"></i>
+                        </button>
+                        <div id="expenses-submenu" class="submenu hidden ml-6 mt-1 space-y-1">
+                            <a href="#" onclick="showPage('add-expense')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Add Expense</a>
+                            <a href="#" onclick="showPage('expense-categories')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Expense Categories</a>
+                            <a href="#" onclick="showPage('expense-reports')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Expense Reports</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports & Analytics -->
+                <div class="nav-item">
+                    <div class="nav-parent">
+                        <button onclick="toggleSubmenu('reports')" class="nav-link w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <div class="flex items-center">
+                                <i class="fas fa-chart-bar w-5 h-5 mr-3"></i>
+                                Reports & Analytics
+                            </div>
+                            <i class="fas fa-chevron-down transform transition-transform duration-200" id="reports-arrow"></i>
+                        </button>
+                        <div id="reports-submenu" class="submenu hidden ml-6 mt-1 space-y-1">
+                            <a href="#" onclick="showPage('sales-reports')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Sales Reports</a>
+                            <a href="#" onclick="showPage('inventory-reports')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Inventory Reports</a>
+                            <a href="#" onclick="showPage('profit-loss')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Profit & Loss</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users & Roles -->
+                <div class="nav-item">
+                    <a href="#" onclick="showPage('users-roles')" class="nav-link flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                        <i class="fas fa-user-cog w-5 h-5 mr-3"></i>
+                        Users & Roles
+                    </a>
+                </div>
+
+                <!-- Settings -->
+                <div class="nav-item">
+                    <div class="nav-parent">
+                        <button onclick="toggleSubmenu('settings')" class="nav-link w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <div class="flex items-center">
+                                <i class="fas fa-cog w-5 h-5 mr-3"></i>
+                                Settings
+                            </div>
+                            <i class="fas fa-chevron-down transform transition-transform duration-200" id="settings-arrow"></i>
+                        </button>
+                        <div id="settings-submenu" class="submenu hidden ml-6 mt-1 space-y-1">
+                            <a href="#" onclick="showPage('auth')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Authentication</a>
+                            <a href="#" onclick="showPage('payment-subscription')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Payment & Subscription</a>
+                            <a href="#" onclick="showPage('branches')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Branches</a>
+                            <a href="#" onclick="showPage('preferences')" class="block px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">Preferences</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom section -->
+            <div class="border-t border-gray-200 p-3">
+                <div class="space-y-1">
+                    <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
+                        <i class="fas fa-question-circle w-5 h-5 mr-3"></i>
+                        Support
+                    </a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
+                        <i class="fas fa-code-branch w-5 h-5 mr-3"></i>
+                        Changelog
+                    </a>
+                </div>
+
+                <!-- User profile -->
+                <div class="mt-4 pt-4 border-t border-gray-200 relative">
+                    <div id="userProfile" class="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face" alt="Profile" class="w-8 h-8 rounded-full mr-3">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900">Dr. Sarah Johnson</p>
+                            <p class="text-xs text-gray-500 truncate">sarah@pharmacare.com</p>
+                        </div>
+                        <i class="fas fa-chevron-up text-gray-400"></i>
+                    </div>
+
+                    <!-- User Dropdown -->
+                    <div id="userDropdown" class="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg hidden">
+                        <div class="py-1">
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-user w-4 h-4 mr-3"></i>
+                                My Account
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-shield-alt w-4 h-4 mr-3"></i>
+                                Privacy Policy
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-comment w-4 h-4 mr-3"></i>
+                                Share Feedback
+                            </a>
+                            <hr class="my-1">
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt w-4 h-4 mr-3"></i>
+                                Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <button id="mobileMenuBtn" class="lg:hidden mr-4 p-2 rounded-lg hover:bg-gray-100">
+                            <i class="fas fa-bars text-gray-600"></i>
+                        </button>
+                        <h1 id="pageTitle" class="text-2xl font-bold text-gray-900">Dashboard</h1>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <div class="relative">
+                            <button class="p-2 rounded-lg hover:bg-gray-100 relative">
+                                <i class="fas fa-bell text-gray-600"></i>
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center notification-pulse">3</span>
+                            </button>
+                        </div>
+
+                        <!-- Date and Time -->
+                        <div class="text-sm text-gray-600">
+                            <div id="currentDateTime" class="font-medium"></div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto p-6">
+                <!-- Home Page -->
+                <div id="home-page" class="page-content fade-in">
+                    <div class="mb-8 flex items-center justify-between">
+                        <h2 class="text-xl font-semibold text-gray-900">Good afternoon, Dr. Sarah</h2>
+                        <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                            <option>Last week</option>
+                            <option>Last month</option>
+                            <option>Last year</option>
+                        </select>
+                    </div>
+
+                    <!-- Overview Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">Total Revenue</h3>
+                            <p class="text-3xl font-bold text-gray-900 mb-1">$45,230</p>
+                            <p class="text-sm text-green-600">+12.5% from last week</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">Medicines Sold</h3>
+                            <p class="text-3xl font-bold text-gray-900 mb-1">1,247</p>
+                            <p class="text-sm text-green-600">+8.2% from last week</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">Low Stock Items</h3>
+                            <p class="text-3xl font-bold text-gray-900 mb-1">23</p>
+                            <p class="text-sm text-red-500">+3 from yesterday</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border border-gray-100 shadow-sm">
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">Expired Soon</h3>
+                            <p class="text-3xl font-bold text-gray-900 mb-1">8</p>
+                            <p class="text-sm text-orange-500">Within 30 days</p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Sales -->
+                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Recent Sales</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200 bg-gray-50">
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Invoice #</th>
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Date</th>
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Customer</th>
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Items</th>
+                                        <th class="text-right py-3 px-6 text-sm font-medium text-gray-500">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-4 px-6 text-sm text-gray-900">#INV-001</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Dec 15, 2024</td>
+                                        <td class="py-4 px-6 text-sm text-gray-900">John Smith</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Paracetamol, Vitamin C</td>
+                                        <td class="py-4 px-6 text-sm text-gray-900 text-right font-medium">$25.50</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-4 px-6 text-sm text-gray-900">#INV-002</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Dec 15, 2024</td>
+                                        <td class="py-4 px-6 text-sm text-gray-900">Maria Garcia</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Amoxicillin, Cough Syrup</td>
+                                        <td class="py-4 px-6 text-sm text-gray-900 text-right font-medium">$42.75</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-4 px-6 text-sm text-gray-900">#INV-003</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Dec 14, 2024</td>
+                                        <td class="py-4 px-6 text-sm text-gray-900">Robert Johnson</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Insulin, Blood Glucose Strips</td>
+                                        <td class="py-4 px-6 text-sm text-gray-900 text-right font-medium">$89.20</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product List Page -->
+                <div id="product-list-page" class="page-content hidden">
+                    <div class="mb-6 flex items-center justify-between">
+                        <h2 class="text-xl font-semibold text-gray-900">Medicine Inventory</h2>
+                        <button onclick="openModal('addProductModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Add Medicine
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-gray-200 bg-gray-50">
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Medicine Name</th>
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Category</th>
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Stock</th>
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Price</th>
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Expiry Date</th>
+                                        <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Status</th>
+                                        <th class="text-right py-3 px-6 text-sm font-medium text-gray-500">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-4 px-6 text-sm font-medium text-gray-900">Paracetamol 500mg</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Pain Relief</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">250 tablets</td>
+                                        <td class="py-4 px-6 text-sm text-gray-900">$0.50</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Mar 2025</td>
+                                        <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">In Stock</span></td>
+                                        <td class="py-4 px-6 text-right">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-4 px-6 text-sm font-medium text-gray-900">Amoxicillin 250mg</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Antibiotic</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">15 capsules</td>
+                                        <td class="py-4 px-6 text-sm text-gray-900">$2.25</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Jan 2025</td>
+                                        <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Low Stock</span></td>
+                                        <td class="py-4 px-6 text-right">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-4 px-6 text-sm font-medium text-gray-900">Vitamin C 1000mg</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Vitamin</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">180 tablets</td>
+                                        <td class="py-4 px-6 text-sm text-gray-900">$0.75</td>
+                                        <td class="py-4 px-6 text-sm text-gray-600">Jun 2025</td>
+                                        <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">In Stock</span></td>
+                                        <td class="py-4 px-6 text-right">
+                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                            <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Management Page -->
+                <div id="stock-page" class="page-content hidden">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Stock Management</h2>
+
+                        <!-- Tabs -->
+                        <div class="border-b border-gray-200">
+                            <nav class="-mb-px flex space-x-8">
+                                <button onclick="showStockTab('stock')" id="stock-tab" class="tab-active py-2 px-1 border-b-2 font-medium text-sm">
+                                    Current Stock
+                                </button>
+                                <button onclick="showStockTab('alerts')" id="alerts-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                    Stock Alerts
+                                </button>
+                                <button onclick="showStockTab('adjustment')" id="adjustment-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                    Stock Adjustment
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Stock Tab Content -->
+                    <div id="stock-content" class="tab-content">
+                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-900">Current Stock Levels</h3>
+                                <button onclick="openModal('stockAdjustmentModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                    <i class="fas fa-plus mr-2"></i>Adjust Stock
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200 bg-gray-50">
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Medicine</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Current Stock</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Minimum Level</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Status</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Last Updated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-4 px-6 text-sm font-medium text-gray-900">Paracetamol 500mg</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">250</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">50</td>
+                                            <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Good</span></td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">Dec 15, 2024</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-4 px-6 text-sm font-medium text-gray-900">Amoxicillin 250mg</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">15</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">25</td>
+                                            <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Low</span></td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">Dec 14, 2024</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alerts Tab Content -->
+                    <div id="alerts-content" class="tab-content hidden">
+                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-900">Stock Alerts</h3>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-4">
+                                    <div class="flex items-center p-4 bg-red-50 border border-red-200 rounded-lg">
+                                        <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-red-800">Low Stock Alert</h4>
+                                            <p class="text-sm text-red-600">Amoxicillin 250mg is running low (15 units remaining)</p>
+                                        </div>
+                                        <button class="text-red-600 hover:text-red-800">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                                        <i class="fas fa-clock text-orange-500 mr-3"></i>
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-orange-800">Expiry Alert</h4>
+                                            <p class="text-sm text-orange-600">Cough Syrup expires in 15 days</p>
+                                        </div>
+                                        <button class="text-orange-600 hover:text-orange-800">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Adjustment Tab Content -->
+                    <div id="adjustment-content" class="tab-content hidden">
+                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h3 class="text-lg font-semibold text-gray-900">Recent Stock Adjustments</h3>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200 bg-gray-50">
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Date</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Medicine</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Type</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Quantity</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Reason</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">User</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-4 px-6 text-sm text-gray-600">Dec 15, 2024</td>
+                                            <td class="py-4 px-6 text-sm font-medium text-gray-900">Paracetamol 500mg</td>
+                                            <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Addition</span></td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">+100</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">New Stock Received</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">Dr. Sarah Johnson</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-4 px-6 text-sm text-gray-600">Dec 14, 2024</td>
+                                            <td class="py-4 px-6 text-sm font-medium text-gray-900">Vitamin C 1000mg</td>
+                                            <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Reduction</span></td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">-5</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">Damaged Items</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">John Smith</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users & Roles Page -->
+                <div id="users-roles-page" class="page-content hidden">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Users & Roles Management</h2>
+
+                        <!-- Tabs -->
+                        <div class="border-b border-gray-200">
+                            <nav class="-mb-px flex space-x-8">
+                                <button onclick="showUsersTab('users')" id="users-tab" class="tab-active py-2 px-1 border-b-2 font-medium text-sm">
+                                    Users List
+                                </button>
+                                <button onclick="showUsersTab('roles')" id="roles-tab" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                    Roles & Permissions
+                                </button>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Users Tab Content -->
+                    <div id="users-content" class="tab-content">
+                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-900">System Users</h3>
+                                <button onclick="openModal('addUserModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                    <i class="fas fa-plus mr-2"></i>Add User
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-200 bg-gray-50">
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Name</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Email</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Role</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Status</th>
+                                            <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Last Login</th>
+                                            <th class="text-right py-3 px-6 text-sm font-medium text-gray-500">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-4 px-6 text-sm font-medium text-gray-900">Dr. Sarah Johnson</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">sarah@pharmacare.com</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">Administrator</td>
+                                            <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Active</span></td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">Dec 15, 2024</td>
+                                            <td class="py-4 px-6 text-right">
+                                                <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                                <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-4 px-6 text-sm font-medium text-gray-900">John Smith</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">john@pharmacare.com</td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">Pharmacist</td>
+                                            <td class="py-4 px-6"><span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Active</span></td>
+                                            <td class="py-4 px-6 text-sm text-gray-600">Dec 14, 2024</td>
+                                            <td class="py-4 px-6 text-right">
+                                                <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-edit"></i></button>
+                                                <button class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Roles Tab Content -->
+                    <div id="roles-content" class="tab-content hidden">
+                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-900">Roles & Permissions</h3>
+                                <button onclick="openModal('addRoleModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                    <i class="fas fa-plus mr-2"></i>Add Role
+                                </button>
+                            </div>
+                            <div class="p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div class="border border-gray-200 rounded-lg p-4">
+                                        <h4 class="font-semibold text-gray-900 mb-2">Administrator</h4>
+                                        <p class="text-sm text-gray-600 mb-4">Full system access and management</p>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-green-600">
+                                                <i class="fas fa-check mr-2"></i>
+                                                Manage Users
+                                            </div>
+                                            <div class="flex items-center text-sm text-green-600">
+                                                <i class="fas fa-check mr-2"></i>
+                                                Manage Inventory
+                                            </div>
+                                            <div class="flex items-center text-sm text-green-600">
+                                                <i class="fas fa-check mr-2"></i>
+                                                View Reports
+                                            </div>
+                                            <div class="flex items-center text-sm text-green-600">
+                                                <i class="fas fa-check mr-2"></i>
+                                                System Settings
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="border border-gray-200 rounded-lg p-4">
+                                        <h4 class="font-semibold text-gray-900 mb-2">Pharmacist</h4>
+                                        <p class="text-sm text-gray-600 mb-4">Sales and inventory management</p>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-green-600">
+                                                <i class="fas fa-check mr-2"></i>
+                                                Process Sales
+                                            </div>
+                                            <div class="flex items-center text-sm text-green-600">
+                                                <i class="fas fa-check mr-2"></i>
+                                                Manage Inventory
+                                            </div>
+                                            <div class="flex items-center text-sm text-green-600">
+                                                <i class="fas fa-check mr-2"></i>
+                                                View Reports
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-400">
+                                                <i class="fas fa-times mr-2"></i>
+                                                System Settings
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="border border-gray-200 rounded-lg p-4">
+                                        <h4 class="font-semibold text-gray-900 mb-2">Cashier</h4>
+                                        <p class="text-sm text-gray-600 mb-4">Sales processing only</p>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-green-600">
+                                                <i class="fas fa-check mr-2"></i>
+                                                Process Sales
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-400">
+                                                <i class="fas fa-times mr-2"></i>
+                                                Manage Inventory
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-400">
+                                                <i class="fas fa-times mr-2"></i>
+                                                View Reports
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-400">
+                                                <i class="fas fa-times mr-2"></i>
+                                                System Settings
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Auth Settings Page -->
+                <div id="auth-page" class="page-content hidden">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Authentication Settings</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Change Password -->
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Change Password</h3>
+                            <form class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                                    <input type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                                    <input type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                                    <input type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                    Update Password
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Branch Information -->
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Branch Information</h3>
+                            <form class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Branch Name</label>
+                                    <input type="text" value="PharmaCare Main Branch" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Branch Code</label>
+                                    <input type="text" value="PC001" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                    <textarea rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">123 Main Street, Downtown, City 12345</textarea>
+                                </div>
+                                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                    Update Branch Info
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- General Information -->
+                        <div class="bg-white rounded-lg border border-gray-200 p-6 lg:col-span-2">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">General Information</h3>
+                            <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Pharmacy Name</label>
+                                    <input type="text" value="PharmaCare Pharmacy" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">License Number</label>
+                                    <input type="text" value="PH-2024-001" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                    <input type="tel" value="+1 (555) 123-4567" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" value="info@pharmacare.com" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+                                        Update General Info
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Sale Page -->
+                <div id="new-sale-page" class="page-content hidden">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">New Sale</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Product Search -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Add Products</h3>
+                                <div class="mb-4">
+                                    <input type="text" placeholder="Search medicines..." class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+
+                                <!-- Cart Items -->
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex-1">
+                                            <h4 class="font-medium text-gray-900">Paracetamol 500mg</h4>
+                                            <p class="text-sm text-gray-600">$0.50 each</p>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <button class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300">
+                                                <i class="fas fa-minus text-xs"></i>
+                                            </button>
+                                            <span class="w-8 text-center">2</span>
+                                            <button class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300">
+                                                <i class="fas fa-plus text-xs"></i>
+                                            </button>
+                                        </div>
+                                        <div class="ml-4 text-right">
+                                            <p class="font-medium text-gray-900">$1.00</p>
+                                            <button class="text-red-600 hover:text-red-800 text-sm">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sale Summary -->
+                        <div class="bg-white rounded-lg border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Sale Summary</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Subtotal:</span>
+                                    <span class="font-medium">$1.00</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Tax (10%):</span>
+                                    <span class="font-medium">$0.10</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Discount:</span>
+                                    <span class="font-medium">$0.00</span>
+                                </div>
+                                <hr>
+                                <div class="flex justify-between text-lg font-semibold">
+                                    <span>Total:</span>
+                                    <span>$1.10</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Customer Name</label>
+                                    <input type="text" placeholder="Enter customer name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option>Cash</option>
+                                        <option>Card</option>
+                                        <option>Insurance</option>
+                                    </select>
+                                </div>
+                                <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700">
+                                    Complete Sale
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages with placeholder content -->
+                <div id="categories-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Medicine Categories</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Categories management content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="sales-history-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Sales History</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Sales history content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="invoices-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Invoices & Receipts</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Invoices and receipts content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="purchase-orders-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Purchase Orders</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Purchase orders content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="suppliers-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Suppliers List</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Suppliers list content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="customers-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Customers</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Customers management content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="add-expense-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Add Expense</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Add expense form goes here...</p>
+                    </div>
+                </div>
+
+                <div id="expense-categories-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Expense Categories</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Expense categories content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="expense-reports-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Expense Reports</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Expense reports content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="sales-reports-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Sales Reports</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Sales reports content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="inventory-reports-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Inventory Reports</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Inventory reports content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="profit-loss-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Profit & Loss</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Profit & loss reports content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="payment-subscription-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Payment & Subscription</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Payment and subscription settings go here...</p>
+                    </div>
+                </div>
+
+                <div id="branches-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Branches</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">Branches management content goes here...</p>
+                    </div>
+                </div>
+
+                <div id="preferences-page" class="page-content hidden">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Preferences</h2>
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <p class="text-gray-600">System preferences content goes here...</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Add New Medicine</h3>
+                <button onclick="closeModal('addProductModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Medicine Name</label>
+                    <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option>Pain Relief</option>
+                        <option>Antibiotic</option>
+                        <option>Vitamin</option>
+                        <option>Supplement</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                        <input type="number" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
+                        <input type="number" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Expiry Date</label>
+                    <input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('addProductModal')" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add Medicine</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Add New User</h3>
+                <button onclick="closeModal('addUserModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option>Administrator</option>
+                        <option>Pharmacist</option>
+                        <option>Cashier</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('addUserModal')" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Role Modal -->
+    <div id="addRoleModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Add New Role</h3>
+                <button onclick="closeModal('addRoleModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Role Name</label>
+                    <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-sm">Manage Users</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-sm">Manage Inventory</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-sm">Process Sales</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-sm">View Reports</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('addRoleModal')" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock Adjustment Modal -->
+    <div id="stockAdjustmentModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Stock Adjustment</h3>
+                <button onclick="closeModal('stockAdjustmentModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Medicine</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option>Paracetamol 500mg</option>
+                        <option>Amoxicillin 250mg</option>
+                        <option>Vitamin C 1000mg</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Adjustment Type</label>
+                    <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option>Addition</option>
+                        <option>Reduction</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                    <input type="number" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Reason</label>
+                    <textarea rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('stockAdjustmentModal')" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Adjust Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentPage = 'home';
+        let openSubmenus = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeNavigation();
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            setupUserDropdown();
+            setupMobileMenu();
+        });
+
+        // Navigation functions
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.add('hidden');
+                page.classList.remove('fade-in');
+            });
+
+            // Show selected page
+            const targetPage = document.getElementById(pageId + '-page');
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.classList.add('fade-in');
+            }
+
+            // Update active navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-blue-50', 'text-blue-700');
+                link.classList.add('text-gray-600');
+            });
+
+            // Update page title
+            const pageTitles = {
+                'home': 'Dashboard',
+                'product-list': 'Medicine Inventory',
+                'categories': 'Medicine Categories',
+                'stock': 'Stock Management',
+                'new-sale': 'New Sale',
+                'sales-history': 'Sales History',
+                'invoices': 'Invoices & Receipts',
+                'purchase-orders': 'Purchase Orders',
+                'suppliers': 'Suppliers List',
+                'customers': 'Customers',
+                'add-expense': 'Add Expense',
+                'expense-categories': 'Expense Categories',
+                'expense-reports': 'Expense Reports',
+                'sales-reports': 'Sales Reports',
+                'inventory-reports': 'Inventory Reports',
+                'profit-loss': 'Profit & Loss',
+                'users-roles': 'Users & Roles Management',
+                'auth': 'Authentication Settings',
+                'payment-subscription': 'Payment & Subscription',
+                'branches': 'Branches',
+                'preferences': 'Preferences'
+            };
+
+            document.getElementById('pageTitle').textContent = pageTitles[pageId] || 'Dashboard';
+            currentPage = pageId;
+
+            // Close mobile menu if open
+            closeMobileMenu();
+        }
+
+        function toggleSubmenu(menuId) {
+            const submenu = document.getElementById(menuId + '-submenu');
+            const arrow = document.getElementById(menuId + '-arrow');
+
+            if (submenu.classList.contains('hidden')) {
+                // Close all other submenus
+                document.querySelectorAll('.submenu').forEach(menu => {
+                    if (menu.id !== menuId + '-submenu') {
+                        menu.classList.add('hidden');
+                    }
+                });
+                document.querySelectorAll('[id$="-arrow"]').forEach(arr => {
+                    if (arr.id !== menuId + '-arrow') {
+                        arr.classList.remove('rotate-180');
+                    }
+                });
+
+                // Open this submenu
+                submenu.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+                openSubmenus.push(menuId);
+            } else {
+                // Close this submenu
+                submenu.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+                openSubmenus = openSubmenus.filter(id => id !== menuId);
+            }
+        }
+
+        function initializeNavigation() {
+            // Set home as active by default
+            showPage('home');
+        }
+
+        // Tab functions for Stock Management
+        function showStockTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('[id$="-tab"]').forEach(tab => {
+                tab.classList.remove('tab-active');
+                tab.classList.add('text-gray-500', 'border-transparent');
+                tab.classList.remove('text-blue-600', 'border-blue-500');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabId + '-content').classList.remove('hidden');
+
+            // Add active class to selected tab
+            const activeTab = document.getElementById(tabId + '-tab');
+            activeTab.classList.add('tab-active');
+            activeTab.classList.remove('text-gray-500', 'border-transparent');
+            activeTab.classList.add('text-blue-600');
+        }
+
+        // Tab functions for Users & Roles
+        function showUsersTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('[id$="-tab"]').forEach(tab => {
+                tab.classList.remove('tab-active');
+                tab.classList.add('text-gray-500', 'border-transparent');
+                tab.classList.remove('text-blue-600', 'border-blue-500');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabId + '-content').classList.remove('hidden');
+
+            // Add active class to selected tab
+            const activeTab = document.getElementById(tabId + '-tab');
+            activeTab.classList.add('tab-active');
+            activeTab.classList.remove('text-gray-500', 'border-transparent');
+            activeTab.classList.add('text-blue-600');
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-backdrop')) {
+                e.target.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Date and time update
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // User dropdown functionality
+        function setupUserDropdown() {
+            const userProfile = document.getElementById('userProfile');
+            const userDropdown = document.getElementById('userDropdown');
+
+            userProfile.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                userDropdown.classList.add('hidden');
+            });
+        }
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            mobileMenuBtn.addEventListener('click', function() {
+                sidebar.classList.toggle('-translate-x-full');
+                mobileOverlay.classList.toggle('hidden');
+            });
+
+            mobileOverlay.addEventListener('click', function() {
+                closeMobileMenu();
+            });
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        }
+
+        // Form submission handlers
+        document.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Show success message (you can customize this)
+            alert('Form submitted successfully!');
+
+            // Close modal if form is in a modal
+            const modal = e.target.closest('[id$="Modal"]');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // ESC to close modals
+            if (e.key === 'Escape') {
+                document.querySelectorAll('[id$="Modal"]').forEach(modal => {
+                    modal.classList.add('hidden');
+                });
+                document.body.style.overflow = 'auto';
+            }
+        });
+    </script>
+</body>
+</html>
