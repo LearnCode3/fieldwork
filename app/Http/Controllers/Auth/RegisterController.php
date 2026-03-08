@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
@@ -25,14 +27,21 @@ class RegisterController extends Controller
         ]);
         // $name = ucfirst(strtolower($request->name));
 
-        $name = $this->formatName($request->name);
-        User::create([
+        try {
+            $name = $this->formatName($request->name);
+            User::create([
             'name'=> $name,
             'email'=>$request->email,
             'role'=> 0,
             'banned' => 0,
             'password' => Hash::make($request->password)
         ]);
+        } catch (Exception $e) {
+            Log::info("User can't to loggin");
+            $e->getMessage();
+        }
+
+        
 
 
 
