@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 
 use App\Models\User;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
@@ -28,6 +30,7 @@ class RegisterController extends Controller
         // $name = ucfirst(strtolower($request->name));
 
         try {
+            DB::table('users')->where('email',$request->email)->count();
             $name = $this->formatName($request->name);
             User::create([
             'name'=> $name,
@@ -36,7 +39,7 @@ class RegisterController extends Controller
             'banned' => 0,
             'password' => Hash::make($request->password)
         ]);
-        } catch (Exception $e) {
+        } catch (QueryException $e) {
             Log::info("User can't to loggin");
             $e->getMessage();
         }
